@@ -83,11 +83,11 @@ unsigned char I2C_Start(unsigned char address)
 
 	// wail until transmission completed and ACK/NACK has been received
 	I2C_Start_timer();
-	while(!(TWCR & (1<<TWINT))	|	!_Flag_Timer_overflow);
+	while(!(TWCR & (1<<TWINT))	&&	!_Flag_Timer_overflow);
 	I2C_Stop_timer('n');
 
 	// check value of TWI Status Register. Mask prescaler bits.
-	if ( (TW_STATUS != TW_MT_SLA_ACK) && (TW_STATUS != TW_MR_SLA_ACK) ) return 1;
+	if ( (TW_STATUS != TW_MT_SLA_ACK) && (TW_STATUS != TW_MR_SLA_NACK) ) return 1;
 
 	return 0;
 
@@ -136,6 +136,8 @@ void I2C_Stop(void)
 	I2C_Start_timer();
 	while((TWCR & (1<<TWSTO)) && !_Flag_Timer_overflow);
 	I2C_Stop_timer('s');
+
+	TWSR = 0x00;
 
 }/* i2c_stop */
 
